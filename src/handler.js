@@ -35,7 +35,7 @@ const addBook = (request, handler) => {
     return response;
   }
   const id = nanoid(16);
-  const finished = pageCount === readPage ? true : false;
+  const finished = pageCount === readPage;
   const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
   book.push({
