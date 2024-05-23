@@ -1,6 +1,5 @@
 const { nanoid } = require("nanoid");
-const book = require("./books");
-const books = require("./books");
+const booksData = require("./books");
 
 //fungsi untuk menambahkan buku
 const addBook = (request, handler) => {
@@ -15,7 +14,7 @@ const addBook = (request, handler) => {
     reading,
   } = request.payload;
 
-  if (name == false) {
+  if (!name) {
     const response = handler
       .response({
         status: "fail",
@@ -38,7 +37,7 @@ const addBook = (request, handler) => {
   const finished = pageCount === readPage;
   const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
-  book.push({
+  booksData.push({
     id,
     name,
     year,
@@ -54,7 +53,7 @@ const addBook = (request, handler) => {
   });
 
   //fungsi untuk memberikan respon jika fungsi addBook berhasil
-  const isSuccess = book.filter((b) => b.id === id).length > 0;
+  const isSuccess = booksData.filter((b) => b.id === id).length > 0;
   if (isSuccess) {
     const response = handler
       .response({
@@ -81,37 +80,35 @@ const addBook = (request, handler) => {
 //fungsi untuk mengambil semua data buku
 const getBook = (request, handler) => {
   const { name, reading, finished } = request.query;
-  let filteredBooks = book;
+  let filteredBooks = booksData;
 
-  //Filter berdasarkan nama buku yang mengandung nilai query `name` (non-case sensitive)
   if (name) {
-    filteredBooks = filteredBooks.filter((b) =>
-      b.name.toLowerCase().includes(name.toLowerCase())
+    filteredBooks = filteredBooks.filter(
+      (b) => b.name.toLowerCase() === name.toLowerCase()
     );
   }
 
-  //Filter berdasarkan status `reading` (0 atau 1)
   if (reading !== undefined) {
     const isReading = Number(reading) === 1;
     filteredBooks = filteredBooks.filter((b) => b.reading === isReading);
   }
 
-  //Filter berdasarkan status `finished` (0 atau 1)
   if (finished !== undefined) {
     const isFinished = Number(finished) === 1;
     filteredBooks = filteredBooks.filter((b) => b.finished === isFinished);
   }
 
-  //Mengembalikan hasil filter
+  const responseBooks = filteredBooks.map((book) => ({
+    id: book.id,
+    name: book.name,
+    publisher: book.publisher,
+  }));
+
   return handler
     .response({
       status: "success",
       data: {
-        books: filteredBooks.map((book) => ({
-          id: book.id,
-          name: book.name,
-          publisher: book.publisher,
-        })),
+        books: responseBooks,
       },
     })
     .code(200);
@@ -120,7 +117,7 @@ const getBook = (request, handler) => {
 //mengambil satu data buku saja (berdasarkan Id)
 const getBookById = (request, handler) => {
   const { bookId } = request.params;
-  const book = books.filter((b) => b.id === bookId)[0];
+  const book = booksData.filter((b) => b.id === bookId)[0];
   if (book !== undefined) {
     return {
       status: "success",
@@ -171,10 +168,10 @@ const editBook = (request, handler) => {
     return response;
   }
   const updatedAt = new Date().toISOString();
-  const index = book.findIndex((b) => b.id === bookId);
+  const index = booksData.findIndex((b) => b.id === bookId);
   if (index !== -1) {
-    book[index] = {
-      ...book[index],
+    booksData[index] = {
+      ...booksData[index],
       name,
       year,
       author,
@@ -205,9 +202,9 @@ const editBook = (request, handler) => {
 //hapus data buku
 const deleteBook = (request, handler) => {
   const { bookId } = request.params;
-  const index = book.findIndex((b) => b.id === bookId);
+  const index = booksData.findIndex((b) => b.id === bookId);
   if (index !== -1) {
-    book.splice(index, 1);
+    booksData.splice(index, 1);
     const response = handler
       .response({
         status: "success",
