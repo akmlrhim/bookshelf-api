@@ -81,66 +81,40 @@ const addBook = (request, handler) => {
 //fungsi untuk mengambil semua data buku
 const getBook = (request, handler) => {
   const { name, reading, finished } = request.query;
+  let filteredBooks = book;
+
+  //Filter berdasarkan nama buku yang mengandung nilai query `name` (non-case sensitive)
   if (name) {
-    let book = book.filter((b) => b.name.toLowerCase() === name.toLowerCase());
-    return handler
-      .response({
-        status: "success",
-        data: {
-          books: book.map((book) => ({
-            id: book.id,
-            name: book.name,
-            publisher: book.publisher,
-          })),
-        },
-      })
-      .code(200);
+    filteredBooks = filteredBooks.filter((b) =>
+      b.name.toLowerCase().includes(name.toLowerCase())
+    );
   }
 
-  if (reading) {
-    let book = book.filter((b) => Number(b.reading) === reading);
-    return handler
-      .response({
-        status: "success",
-        data: {
-          books: book.map((book) => ({
-            id: book.id,
-            name: book.name,
-            publisher: book.publisher,
-          })),
-        },
-      })
-      .code(200);
+  //Filter berdasarkan status `reading` (0 atau 1)
+  if (reading !== undefined) {
+    const isReading = Number(reading) === 1;
+    filteredBooks = filteredBooks.filter((b) => b.reading === isReading);
   }
-  if (finished) {
-    let book = book.filter((b) => Number(b.finished) === finished);
-    return handler
-      .response({
-        status: "success",
-        data: {
-          books: book.map((book) => ({
-            id: book.id,
-            name: book.name,
-            publisher: book.publisher,
-          })),
-        },
-      })
-      .code(200);
+
+  //Filter berdasarkan status `finished` (0 atau 1)
+  if (finished !== undefined) {
+    const isFinished = Number(finished) === 1;
+    filteredBooks = filteredBooks.filter((b) => b.finished === isFinished);
   }
-  if (!name && !reading && !finished) {
-    return handler
-      .response({
-        status: "success",
-        data: {
-          books: book.map((book) => ({
-            id: book.id,
-            name: book.name,
-            publisher: book.publisher,
-          })),
-        },
-      })
-      .code(200);
-  }
+
+  //Mengembalikan hasil filter
+  return handler
+    .response({
+      status: "success",
+      data: {
+        books: filteredBooks.map((book) => ({
+          id: book.id,
+          name: book.name,
+          publisher: book.publisher,
+        })),
+      },
+    })
+    .code(200);
 };
 
 //mengambil satu data buku saja (berdasarkan Id)
