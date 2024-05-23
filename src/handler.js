@@ -13,6 +13,7 @@ const addBook = (request, handler) => {
     readPage,
     reading,
   } = request.payload;
+
   if (name == false) {
     const response = handler
       .response({
