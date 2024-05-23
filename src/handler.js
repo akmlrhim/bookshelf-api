@@ -1,5 +1,6 @@
 const { nanoid } = require("nanoid");
 const book = require("./books");
+const books = require("./books");
 
 //fungsi untuk menambahkan buku
 const addBook = (request, handler) => {
@@ -145,7 +146,7 @@ const getBook = (request, handler) => {
 //mengambil satu data buku saja (berdasarkan Id)
 const getBookById = (request, handler) => {
   const { bookId } = request.params;
-  const book = book.filter((b) => b.id === bookId)[0];
+  const book = books.filter((b) => b.id === bookId)[0];
   if (book !== undefined) {
     return {
       status: "success",
